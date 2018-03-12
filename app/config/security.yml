@@ -1,0 +1,133 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/security.html
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+        AppBundle\Entity\User: bcrypt
+
+    # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: ~
+            logout: ~
+
+            # form_login:
+                # csrf_token_generator: security.csrf.token_manager
+
+            guard:
+                authenticators:
+                    - app.security.login_form_authenticator
+
+            remember_me:
+                secret: '%secret%'
+
+    role_hierarchy:
+        ROLE_USER:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_LISTENER:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_PARENT:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_CHILD:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_ACCOUNTANT:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_TEACHER:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+        ROLE_CURATOR:
+            - ROLE_USER
+            - ROLE_APP_STUFF
+            - ROLE_APP_ADMIN
+            # user
+            - ROLE_APP_ADMIN_USER_LIST
+            - ROLE_APP_ADMIN_USER_VIEW
+            # course
+            - ROLE_APP_ADMIN_COURSE_LIST
+            - ROLE_APP_ADMIN_COURSE_VIEW
+            # group
+            - ROLE_APP_ADMIN_GROUP_LIST
+            - ROLE_APP_ADMIN_GROUP_VIEW
+        ROLE_ADMIN:
+            - ROLE_APP_ADMIN
+            # user
+            - ROLE_APP_ADMIN_USER_CREATE
+            - ROLE_APP_ADMIN_USER_DELETE
+            - ROLE_APP_ADMIN_USER_EDIT
+            - ROLE_APP_ADMIN_USER_LIST
+            - ROLE_APP_ADMIN_USER_VIEW
+            - ROLE_APP_ADMIN_USER_EXPORT
+            - ROLE_APP_ADMIN_USER_OPERATOR
+            - ROLE_APP_ADMIN_USER_MASTER
+            # course
+            - ROLE_APP_ADMIN_COURSE_CREATE
+            - ROLE_APP_ADMIN_COURSE_DELETE
+            - ROLE_APP_ADMIN_COURSE_EDIT
+            - ROLE_APP_ADMIN_COURSE_LIST
+            - ROLE_APP_ADMIN_COURSE_VIEW
+            - ROLE_APP_ADMIN_COURSE_EXPORT
+            - ROLE_APP_ADMIN_COURSE_OPERATOR
+            - ROLE_APP_ADMIN_COURSE_MASTER
+            # group
+            - ROLE_APP_ADMIN_GROUP_CREATE
+            - ROLE_APP_ADMIN_GROUP_DELETE
+            - ROLE_APP_ADMIN_GROUP_EDIT
+            - ROLE_APP_ADMIN_GROUP_LIST
+            - ROLE_APP_ADMIN_GROUP_VIEW
+            - ROLE_APP_ADMIN_GROUP_EXPORT
+            - ROLE_APP_ADMIN_GROUP_OPERATOR
+            - ROLE_APP_ADMIN_GROUP_MASTER
+        ROLE_SUPER_ADMIN:
+            - ROLE_ADMIN
+            - ROLE_ALLOWED_TO_SWITCH
+
+    access_control:
+        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/resetting, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/$, roles: ROLE_USER }
+        - { path: ^/profile$, roles: ROLE_USER }
+        - { path: ^/profile/edit$, roles: [ROLE_ADMIN, ROLE_CURATOR, ROLE_TEACHER] }
+        - { path: ^/home/, roles: ROLE_USER }
+        - { path: ^/search$, roles: ROLE_ADMIN }
+        - { path: ^/app/users/list$, roles: [ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/app/users/, roles: ROLE_ADMIN }
+        - { path: ^/app/groups/list$, roles: [ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/app/groups/, roles: [ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/app/curse/list$, roles: [ROLE_LISTENER, ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/app/curse/show$, roles: [ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/app/curse/, roles: ROLE_ADMIN }
+        - { path: ^/course/lessons/add$, roles: ROLE_ADMIN, method: POST }
+        - { path: ^/course/lessons/edit$, roles: [ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN], method: PUT }
+        - { path: ^/course/lessons/delete$, roles: ROLE_ADMIN, method: DELETE }
+        - { path: ^/group/, roles: [ROLE_LISTENER, ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/archive/group/, roles: [ROLE_LISTENER, ROLE_TEACHER, ROLE_CURATOR, ROLE_ADMIN] }
+        - { path: ^/group/lesson/save$, roles: ROLE_TEACHER, method: POST }
+        - { path: ^/group/lesson/edit$, roles: ROLE_TEACHER, method: PUT }
+        - { path: ^/group/home-assignment/add$, roles: ROLE_TEACHER, method: POST }
+        - { path: ^/lesson/save, roles: [ROLE_TEACHER, ROLE_ADMIN], method: [POST, PUT] }
+        - { path: ^/student/, roles: ROLE_PARENT }
+        - { path: ^/download/, roles: ROLE_USER }
+        - { path: ^/home-assignment/show, roles: [ROLE_LISTENER, ROLE_PARENT, ROLE_CHILD], method: POST }
+        - { path: ^/table, roles: ROLE_TEACHER}
+        - { path: ^/table/, roles: ROLE_TEACHER}
+        - { path: ^/accountant-management, roles: [ROLE_ADMIN, ROLE_ACCOUNTANT] }

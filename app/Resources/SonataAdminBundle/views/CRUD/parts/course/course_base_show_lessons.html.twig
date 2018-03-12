@@ -1,0 +1,57 @@
+{% set lessons = object.getLessons %}
+
+<div class="container-fluid" id="list-lessons-block">
+    {% for row in lessons|batch(2) %}
+        <div class="row">
+            {% for lesson in row %}
+                {% set id = lesson.id %}
+                {% set title = lesson.title %}
+                {% set body = lesson.body %}
+
+                <div class="col-md-6 col-lg-6">
+                    <div class="panel panel-info lessons-course" id="{{ id }}">
+                        <div class="panel-heading lesson-title">
+                            <span class="text-lesson-title" id="{{ id }}">{{ title }}</span>
+                            <button class="btn btn-danger btn-sm btn-lesson-delete" data-lesson="{{ id }}">Удалить</button>
+                        </div>
+                        <div class="panel-body form-horizontal">
+                            <div class="form-group">
+                                <label for="title{{ id }}" class="col-md-4">
+                                    Тема:
+                                </label>
+                                <div class="col-md-8">
+                                    <input id="title{{ id }}" type="text" class="form-control" name="title" value="{{ title }}" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="body{{ id }}" class="col-md-4">
+                                    Описание:
+                                </label>
+                                <div class="col-md-8">
+                                    <textarea id="body{{ id }}" class="form-control" name="body">{% if body %}{{ body }}{% endif %}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+<div class="container-fluid">
+    <button id="edit-lessons-course" class="btn btn-success btn-sm"><i class="fa fa-save" aria-hidden="true"></i>&nbsp;Сохранить изменения</button>
+    {% if is_granted('ROLE_ADMIN') %}
+        <button id="add-lessons-course" class="btn btn-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Добавить занятие</button>
+    {% endif %}
+</div>
+<script>
+    var COURSE_LESSONS_DATA = {
+        course_data: "{{ object.getId }}",
+        route_name: {
+            edit_lessons: "{{ path('course-lessons-edit') }}",
+            add_lesson: "{{ path('course-lessons-add') }}",
+            delete_lesson: "{{ path('course-lessons-delete') }}"
+        }
+    };
+</script>

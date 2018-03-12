@@ -1,0 +1,260 @@
+{% extends sonata_block.templates.block_base %}
+
+{% block block %}
+    {% set show_empty_boxes = sonata_admin.adminPool.container.getParameter('sonata.admin.configuration.global_search.empty_boxes') %}
+    {% set visibility_class = '' %}
+    {% if pager and not pager.getResults()|length %}
+        {% set visibility_class = 'sonata-search-result-' ~ show_empty_boxes %}
+    {% endif %}
+
+    <div class="col-lg-12 col-md-12 search-box-item {{ visibility_class }}">
+        <div class="box box-solid box-primary{{ visibility_class }}">
+            <div class="box-header with-border {{ visibility_class }}">
+                {% set icon = settings.icon|default('') %}
+                {{ icon|raw }}
+                <h3 class="box-title">
+                    {{ admin.label|trans({}, admin.translationdomain) }}
+                </h3>
+
+                <div class="box-tools pull-right">
+                    {% if pager and pager.getNbResults() > 0 %}
+                        <span class="badge bg-light-blue">{{ pager.getNbResults() }}</span>
+                    {% elseif admin.hasRoute('create') and admin.hasAccess('create') %}
+                        <a href="{{ admin.generateUrl('create') }}" class="btn btn-box-tool">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                    {% if admin.hasRoute('list') and admin.hasAccess('list') %}
+                        <a href="{{ admin.generateUrl('list') }}" class="btn btn-box-tool">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if pager and pager.getResults()|length %}
+                <div class="box-body no-padding">
+                    {% if admin.classnameLabel == 'Users' %}
+                        <div class="panel-table">
+                            <table class="table table-bordered journal-table">
+                                <tr>
+                                    <th class="text-center">
+                                        E-mail
+                                    </th>
+                                    <th class="text-center">
+                                        Фамилия
+                                    </th>
+                                    <th class="text-center">
+                                        Имя
+                                    </th>
+                                    <th class="text-center">
+                                        Отчество
+                                    </th>
+                                    <th class="text-center">
+                                        Телефон
+                                    </th>
+                                    <th class="text-center">
+                                        Адрес
+                                    </th>
+                                </tr>
+                                {% for result in pager.getResults() %}
+                                    {% set link = admin.getSearchResultLink(result) %}
+                                    <tr>
+                                        <td class="group-field-name">
+                                            {% if link %}
+                                                <a href="{{ link }}">
+                                                    {{ result.email }}
+                                                </a>
+                                            {% else %}
+                                                {{ result.email }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ result.lastName }}
+                                        </td>
+                                        <td>
+                                            {{ result.firstName }}
+                                        </td>
+                                        <td>
+                                            {{ result.middleName }}
+                                        </td>
+                                        <td>
+                                            {{ result.phone }}
+                                        </td>
+                                        <td>
+                                            {{ result.address }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% elseif admin.classnameLabel == 'Course' %}
+                        <div class="panel-table">
+                            <table class="table table-bordered journal-table">
+                                <tr>
+                                    <th class="text-center">Назавние курса</th>
+                                    <th class="text-center">Количество занятий</th>
+                                    <th class="text-center">Продолжительность занятия</th>
+                                </tr>
+                                {% for result in pager.getResults() %}
+                                    {% set link = admin.getSearchResultLink(result) %}
+                                    <tr>
+                                        <td class="group-field-name">
+                                            {% if link %}
+                                                <a href="{{ link }}">
+                                                    {{ result.title }}
+                                                </a>
+                                            {% else %}
+                                                {{ result.courseName }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ result.numberLessons }}
+                                        </td>
+                                        <td>
+                                            {{ result.durationLessons }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% elseif admin.classnameLabel == 'Groups' %}
+                        <div class="panel-table">
+                            <table class="table table-bordered journal-table">
+                                <tr>
+                                    <th class="text-center">
+                                        Номер группы
+                                    </th>
+                                    <th class="text-center">
+                                        Название группы
+                                    </th>
+                                    <th class="text-center">
+                                        Название курса
+                                    </th>
+                                    <th class="text-center">
+                                        Преподаватель
+                                    </th>
+                                    <th class="text-center">
+                                        Куратор
+                                    </th>
+                                    <th class="text-center">
+                                        Дата начала
+                                    </th>
+                                    <th class="text-center">
+                                        Дни занятий
+                                    </th>
+                                    <th class="text-center">
+                                        Время проведения
+                                    </th>
+                                </tr>
+                                {% for result in pager.getResults() %}
+                                    {% set link = admin.getSearchResultLink(result) %}
+                                    <tr>
+                                        <td class="group-field-name">
+                                            {% if link %}
+                                                <a href="{{ link }}">
+                                                    {{ result.number }}
+                                                </a>
+                                            {% else %}
+                                                {{ result.number }}
+                                            {% endif %}
+                                            {% if result.isCompleted %}
+                                                <span class="label label-success label-group-complete">Завершенная</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if link %}
+                                                <a href="{{ link }}">
+                                                    {{ result.title }}
+                                                </a>
+                                            {% else %}
+                                                {{ result.title }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if link %}
+                                                <a href="{{ path('admin_app_course_show', {'id': result.course.id}) }}">
+                                                    {{ result.course.courseName }}
+                                                </a>
+                                            {% else %}
+                                                {{ result.course.courseName }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.teacher %}
+                                                {{ result.teacher.name }}
+                                            {% else %}
+                                                Преподаватель не назначен
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.curator %}
+                                                {{ result.curator.name }}
+                                            {% else %}
+                                                Куратор не назначен
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.createdAt %}
+                                                {{ result.createdAt|date('d.m.Y') }}
+                                            {% else %}
+                                                Дата начала занятий не указана
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.daysLessons %}
+                                                {% for day in result.daysLessons %}
+                                                    {% if day == 1 %}
+                                                        Понедельник
+                                                    {% elseif day == 2 %}
+                                                        Вторник
+                                                    {% elseif day == 3 %}
+                                                        Среда
+                                                    {% elseif day == 4 %}
+                                                        Четверг
+                                                    {% elseif day == 5 %}
+                                                        Пятница
+                                                    {% elseif day == 6 %}
+                                                        Суббота
+                                                    {% elseif day == 7 %}
+                                                        Воскресенье
+                                                    {% endif %}
+                                                    {% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                Дни занятий не указаны
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.createdAt %}
+                                                {{ result.createdAt|date('H:i') }}
+                                            {% else %}
+                                                Время проведения занятий не указано
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% else %}
+                        <ul class="nav nav-stacked sonata-search-result-list">
+                            {% for result in pager.getResults() %}
+                                {% set link = admin.getSearchResultLink(result) %}
+                                {% if link %}
+                                    <li><a href="{{ link }}">{{ admin.toString(result) }}</a></li>
+                                {% else %}
+                                    <li><a>{{ admin.toString(result) }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="box-body">
+                    <p>
+                        <em>{{ 'no_results_found'|trans({}, 'SonataAdminBundle') }}</em>
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

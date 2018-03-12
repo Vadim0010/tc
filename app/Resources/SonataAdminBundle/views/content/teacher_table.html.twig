@@ -1,0 +1,91 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+    <div class="group-title alert alert-success">
+        Табель учета рабочего времени
+    </div>
+    <div class="panel-table">
+        {% if lessons|length > 0 %}
+            <table class="table table-bordered journal-table">
+                <tr>
+                    <th class="group-field-name text-center">Месяц</th>
+                    <th class="group-field-name text-center">Группы (Количество учащихся)</th>
+                    <th class="group-field-name text-center">Количество часов</th>
+                </tr>
+                {% for year, data_year in lessons %}
+                    {% for month, data in data_year %}
+                        <tr>
+                            <th class="group-field-name text-center" rowspan="{{ data.groups|length }}">
+                                {% if month == '01' %}
+                                    Январь
+                                {% elseif month == '02' %}
+                                    Февраль
+                                {% elseif month == '03' %}
+                                    Март
+                                {% elseif month == '04' %}
+                                    Апрель
+                                {% elseif month == '05' %}
+                                    Май
+                                {% elseif month == '06' %}
+                                    Июнь
+                                {% elseif month == '07' %}
+                                    Июль
+                                {% elseif month == '08' %}
+                                    Август
+                                {% elseif month == '09' %}
+                                    Сентябрь
+                                {% elseif month == '10' %}
+                                    Октябрь
+                                {% elseif month == '11' %}
+                                    Ноябрь
+                                {% elseif month == '12' %}
+                                    Декабрь
+                                {% endif %}
+                                {{ year }}
+                            </th>
+                            {% for key, group in data.groups %}
+                                {% if not loop.first %}
+                                    <tr>
+                                {% endif %}
+                                    <td class="group-field-name">
+                                        <a
+                                                href="
+                                                {% if group.data.completed %}
+                                                    {{ path('archive_group-show', {'group': key}) }}
+                                                {% else %}
+                                                    {{ path('group-show', {'group': key}) }}
+                                                {% endif %}"
+                                        >
+                                            {{ group.data.title }}
+                                        </a>
+                                        {% if group.data.completed %}
+                                            <span class="label label-success label-group-complete">Завершена</span>
+                                        {% endif %}
+                                        {% if not loop.last %}
+                                            <br>
+                                        {% endif %}
+                                    </td>
+                                    <td class="group-field-name">
+                                        {{ group.hours }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th class="group-field-name group-field-name-left">{{ 'Итого за месяц: ' ~ data.hours }}</th>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
+        {% else %}
+            <div class="alert alert-danger">
+                За последний год не проведено ни одного занятия
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block script %}
+    {{ parent() }}
+{% endblock %}

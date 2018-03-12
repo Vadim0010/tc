@@ -1,0 +1,23 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+    {% if groups and groups.getTotalItemCount > 0 %}
+        {% include
+                'SonataAdminBundle:content:group_list.html.twig'
+            with
+                {
+                    'status': 'success',
+                    'heading': child.name,
+                    'groups': groups,
+                    'teacher_show': true,
+                    'curator_show': true,
+                    'time_show': true,
+                    'number_lessons': true,
+                    'child_show': false,
+                    'edit': false
+                }
+        %}
+    {% else %}
+        <div class="alert alert-danger" role="alert">Список групп пуст</div>
+    {% endif %}
+{% endblock %}

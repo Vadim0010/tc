@@ -1,0 +1,32 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+    <div class="group-title alert alert-success">
+        Табель учета рабочего времени
+    </div>
+    {% if teachers|length > 0 %}
+        <div class="selected-teacher-title">Выбрать преподавателя</div>
+        <div class="selected-teacher-select-block">
+            <label for="selected-teacher"></label>
+            <select name="selected-teacher" id="selected-teacher" style="width: 70%">
+                <option value=""></option>
+                {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}">{{ teacher.fullName }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary" id="get-teacher-info">Выбрать</button>
+        </div>
+        <div id="selected-teacher-result-block"></div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+        var DATA_ACCOUNTANT = {
+            route_name: {
+                get_hours:"{{ path('accountant-hours') }}"
+            }
+        };
+    </script>
+    {{ parent() }}
+{% endblock %}

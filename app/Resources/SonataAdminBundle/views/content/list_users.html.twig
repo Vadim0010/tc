@@ -1,0 +1,35 @@
+{% if users|length > 0 %}
+    <div class="group-title alert alert-warning">
+        {{ title }}
+    </div>
+    <table class="table table-bordered journal-table">
+        <tr>
+            <th class="text-center">E-mail</th>
+            <th class="text-center">Фамилия</th>
+            <th class="text-center">Имя</th>
+            <th class="text-center">Отчество</th>
+            <th class="text-center">Телефон</th>
+        </tr>
+        {% for user in users if user.deletedAt is null %}
+            <tr>
+                <td>
+                    {{ user.email }}
+                </td>
+                <td>
+                    {{ user.lastName }}
+                </td>
+                <td>
+                    {{ user.firstName }}
+                </td>
+                <td>
+                    {{ user.middleName }}
+                </td>
+                <td>
+                    {{ user.phone }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="alert alert-danger" role="alert">Список пуст</div>
+{% endif %}

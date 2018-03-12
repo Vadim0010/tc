@@ -1,0 +1,335 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use AppBundle\Entity\Groups;
+use AppBundle\Entity\HomeAssignment;
+use AppBundle\Entity\Lessons;
+use AppBundle\Entity\Users;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
+/**
+ * @ORM\Table(name="lessons_users")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\LessonsUsersRepository")
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", timeAware=false)
+ *
+ */
+class LessonsUsers
+{
+    /**
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Users", inversedBy="lessonsList")
+     */
+    private $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Lessons", inversedBy="usersList")
+     */
+    private $lesson;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Groups", inversedBy="lessonsGroup")
+     */
+    private $group;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\HomeAssignment", inversedBy="lessonsUsers")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $homeAssignment;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Assert\Range(
+     *     min=0,
+     *     max=10
+     * )
+     */
+    private $mark;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isAttend;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $comment;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
+     */
+    private $updatedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $deletedAt;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set mark
+     *
+     * @param integer $mark
+     *
+     * @return LessonsUsers
+     */
+    public function setMark($mark)
+    {
+        $this->mark = $mark;
+
+        return $this;
+    }
+
+    /**
+     * Get mark
+     *
+     * @return integer
+     */
+    public function getMark()
+    {
+        return $this->mark;
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     *
+     * @return LessonsUsers
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Set updatedAt
+     *
+     * @param \DateTime $updatedAt
+     *
+     * @return LessonsUsers
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get updatedAt
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * Set deletedAt
+     *
+     * @param \DateTime $deletedAt
+     *
+     * @return LessonsUsers
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get deletedAt
+     *
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Set user
+     *
+     * @param Users $user
+     *
+     * @return LessonsUsers
+     */
+    public function setUser(Users $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return Users
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set lesson
+     *
+     * @param Lessons $lesson
+     *
+     * @return LessonsUsers
+     */
+    public function setLesson(Lessons $lesson = null)
+    {
+        $this->lesson = $lesson;
+
+        return $this;
+    }
+
+    /**
+     * Get lesson
+     *
+     * @return Lessons
+     */
+    public function getLesson()
+    {
+        return $this->lesson;
+    }
+
+    /**
+     * Set homeAssignment
+     *
+     * @param HomeAssignment $homeAssignment
+     *
+     * @return LessonsUsers
+     */
+    public function setHomeAssignment(HomeAssignment $homeAssignment = null)
+    {
+        $this->homeAssignment = $homeAssignment;
+
+        return $this;
+    }
+
+    /**
+     * Get homeAssignment
+     *
+     * @return HomeAssignment
+     */
+    public function getHomeAssignment()
+    {
+        return $this->homeAssignment;
+    }
+
+    /**
+     * Set isAttend
+     *
+     * @param boolean $isAttend
+     *
+     * @return LessonsUsers
+     */
+    public function setIsAttend($isAttend)
+    {
+        $this->isAttend = $isAttend;
+
+        return $this;
+    }
+
+    /**
+     * Get isAttend
+     *
+     * @return boolean
+     */
+    public function getIsAttend()
+    {
+        return $this->isAttend;
+    }
+
+    /**
+     * Set group
+     *
+     * @param Groups $group
+     *
+     * @return LessonsUsers
+     */
+    public function setGroup(Groups $group = null)
+    {
+        $this->group = $group;
+
+        return $this;
+    }
+
+    /**
+     * Get group
+     *
+     * @return Groups
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * Set comment
+     *
+     * @param string $comment
+     *
+     * @return LessonsUsers
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Get comment
+     *
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+}

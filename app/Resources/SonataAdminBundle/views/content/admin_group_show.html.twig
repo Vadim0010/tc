@@ -1,0 +1,459 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% set data = getGroupData(group) %}
+{% set number_lesson = group.course.numberLessons %}
+{% set home_assignment = data.homeAssignment %}
+{% set assignments = group.course.homeAssignment %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/dropzone.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+
+{% block sonata_admin_content %}
+    {% if is_granted('ROLE_TEACHER') %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>
+                    {% if data.currentLesson %}
+                        {{ data.currentLesson.title ~ " - " ~ 'now'|date('d.m.Y') }}
+                    {% else %}
+                        {{ 'now'|date('d.m.Y') }}
+                    {% endif %}
+                    {% if is_granted("ROLE_TEACHER") and app.user %}
+                        <span style="float: right">{{ app.user.name }}</span>
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="panel-body panel-table">
+                {% if group.users|length > 0 %}
+                    {% if data.currentLesson and data.currentLesson.body %}
+                        {% spaceless %}
+                            <div class="row group-current-lesson-description">
+                                <div class="col-md-2 col-lg-2 group-field-name">
+                                    Описание занятия:
+                                </div>
+                                <div class="col-md-10 col-lg-10">
+                                    {{ data.currentLesson.body|nl2br }}
+                                </div>
+                            </div>
+                        {% endspaceless %}
+                    {% endif %}
+                    <table
+                            class="table table-bordered journal-table"
+                            id="current-lesson"
+                            data-lesson="{{ data.currentLesson.id }}"
+                            data-group="{{ group.id }}"
+                            data-ha="{% if home_assignment %}{{ home_assignment.id }}{% else %}0{% endif %}"
+                    >
+                        {% for user in group.users %}
+                            {% set user_data = getUserData(user, group, data.currentLesson) %}
+                            <tr class="journal-list" id="{{ user.id }}">
+                                <th>{{ user.listenerName }}</th>
+                                <td>
+                                    <label for="check">
+                                        <input
+                                                id="check-{{ user.id }}"
+                                                type="checkbox"
+                                                name="attend-user"
+                                                {% if user_data %}
+                                                    {% if user_data.isAttend %} checked {% endif %}
+                                                {%  endif %}
+                                        >
+                                    </label>
+                                </td>
+                                <td>
+                                    <label for="mark">
+                                        <div class="icheckbox disabled">
+                                            <select id="mark-{{ user.id }}" type="number" name="mark-user">
+                                                <option value=""></option>
+                                                {% for mark in 0..10  %}
+                                                    <option
+                                                            value="{{ mark }}"
+                                                            {% if user_data %}
+                                                                {% if user_data.mark is not null and user_data.mark == mark %} selected {% endif %}
+                                                            {% endif %}
+                                                    >
+                                                        {{ mark }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="form-group row">
+                                        <label for="comment" class="form-control-label"></label>
+                                        <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+                                            <input
+                                                    id="comment-{{ user.id }}"
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="comment-user"
+                                                    {% if user_data %}
+                                                        value="{{ user_data.comment }}"
+                                                    {% endif %}
+                                                    placeholder="Примечание"
+                                            >
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="alert alert-danger">В данной группе нет учащихся</div>
+                {% endif %}
+            </div>
+            {% if is_granted('ROLE_TEACHER') and group.users|length > 0 and not group.isCompleted %}
+                <div class="panel-footer">
+                    <button class="btn btn-success" id="save-lesson-group">Сохранить</button>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if is_granted('ROLE_TEACHER') %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>
+                    Информация о группе - {{ group.title }}
+                </h4>
+            </div>
+            <div class="panel-body panel-table">
+                <div class="row">
+                    <div class="col-lg-6 col-md-7 col-sm-12">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Номер группы:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.number %}
+                                            {{ group.number }}
+                                        {% else %}
+                                            Номер не присвоен
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Курс:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.course %}
+                                            {{ group.course.courseName }}
+                                        {% else %}
+                                            Курс не указан
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Дата начала:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.getCreatedAt() %}
+                                            {{ group.getCreatedAt().format('d.m.Y') }}
+                                        {% else %}
+                                            Дата начала не указана
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Время проведения:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.getCreatedAt() %}
+                                            {{ group.getCreatedAt().format('H:i') }}
+                                            {% if group.course.durationLessons %}
+                                                (Продолжительность: {{ group.course.durationLessons }} ч)
+                                            {% endif %}
+                                        {% else %}
+                                            Время проведения занятий не указано
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Количество занятий / осталось:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if number_lesson %}
+                                            {{ number_lesson }}
+                                            {% if data %}
+                                                / {{ number_lesson - data.lessonsGroup|length }}
+                                            {% endif %}
+                                        {% else %}
+                                            Количество занятий не указано
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Дни занятий:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.daysLessons %}
+                                            {% for day in group.daysLessons %}
+                                                {% if day == 1 %}
+                                                    Понедельник
+                                                {% elseif day == 2 %}
+                                                    Вторник
+                                                {% elseif day == 3 %}
+                                                    Среда
+                                                {% elseif day == 4 %}
+                                                    Четверг
+                                                {% elseif day == 5 %}
+                                                    Пятница
+                                                {% elseif day == 6 %}
+                                                    Суббота
+                                                {% elseif day == 7 %}
+                                                    Воскресенье
+                                                {% endif %}
+                                                {% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Преподаватель:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.teacher %}
+                                            <p>
+                                                {{ group.teacher.name }}
+                                            </p>
+                                        {% else %}
+                                            Преподаватель не назначен
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-5 group-field-name">
+                                        Куратор:
+                                    </div>
+                                    <div class="col-md-7 group-field-data">
+                                        {% if group.curator %}
+                                            <p>
+                                                {{ group.curator.listenerName }}
+                                            </p>
+                                        {% else %}
+                                            Куратор не назначен
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 col-md-5 col-sm-12">
+                        <hr class="hidden-lg hidden-md">
+                        <div class="home-assignment-title home-assignment-title-new">Добавить материал</div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-5">
+                                <form class="dropzone" id="add-home-assignment-dropzone" aria-describedby="homeAssignmentFilesHelpBlock"></form>
+                                <div id="homeAssignmentFilesHelpBlock" class="form-text text-muted">
+                                    <p>* размер файла не должен превышать 100 MB</p>
+                                    <p>* одновременно можно загрузить не более 10 файлов</p>
+                                </div>
+                                {% if home_assignment %}
+                                    {% if home_assignment.files|length > 0 %}
+                                        <div class="home-assignment-title home-assignment-title-new">Список добавленных файлов</div>
+                                        <ul>
+                                            {% for file in home_assignment.files %}
+                                                {% set filename = getFilename(file.path) %}
+                                                {% set full_path = ha_directory ~ file.path %}
+                                                {% if file_exists(full_path) %}
+                                                    <li>
+                                                        <a href="{{ path('download-file', {'ha_file': file.id}) }}" title="{{ filename }}">
+                                                            {{ filename|slice(0, 30) }}
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-7">
+                                <div class="form-group">
+                                    <label for="home-assignment-title" class="form-control-label">
+                                        Тема домашнего задания
+                                    </label>
+                                    <input
+                                            id="home-assignment-title"
+                                            type="text"
+                                            class="form-control"
+                                            aria-describedby="homeAssignmentTitleHelpBlock"
+                                            value = "{% if home_assignment %}{{ home_assignment.title }}{% else %}{% if group.course and data.currentLesson %}{{ group.course.courseName ~ " - " ~ data.currentLesson.title }}{% endif %}{% endif %}"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-assignment-body" class="form-control-label">
+                                        Описание
+                                    </label>
+                                    <textarea
+                                            id="home-assignment-body"
+                                            class="form-control"
+                                            rows="3"
+                                    >{% if home_assignment %}{{ home_assignment.body }}{% endif %}</textarea>
+                                </div>
+                                {% if assignments|length > 0 %}
+                                    <div class="home-assignment-title home-assignment-title-new">Выбрать из списка существующих</div>
+                                    <label for="selected-home-assignment"></label>
+                                    <select name="selected-home-assignment" id="selected-home-assignment">
+                                        <option value=""></option>
+                                        {% for assignment in assignments %}
+                                            <option value="{{ assignment.id }}">{{ assignment.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                                {% if not group.isCompleted %}
+                                    <button class="btn btn-success pull-right" id="add-home-assignment-group">Добавить задание</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if group.users|length > 0 %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>Список учащихся</h4>
+            </div>
+            <div class="panel-body panel-table">
+                <table class="table table-bordered journal-table" id="list-listeners-all-lessons">
+                    <tr>
+                        <th></th>
+                        {% for lesson in group.course.lessons %}
+                            {% set lesson_date = getLessonDate(group, lesson) %}
+                            <th>
+                                {% if lesson_date %}
+                                    {{ '№ ' ~ loop.index ~ ' ' ~ lesson_date.format('d.m') }}
+                                {% else %}
+                                    {{ '№ ' ~ loop.index }}
+                                {% endif %}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    {% for user in group.users %}
+                        <tr>
+                            <th>{{ user.name }}</th>
+                            {% for lesson in group.course.lessons %}
+                                {% set data_user_list = getUserData(user, group, lesson) %}
+                                {% set user_mark = data_user_list ? data_user_list.mark : "" %}
+                                {% set user_attend = data_user_list ? data_user_list.isAttend : 2 %}
+                                <td
+                                        class="{% if user_attend == 1 %}success{% elseif user_attend == 2 %}{% else %}danger{% endif %}"
+                                        data-lesson="{{ lesson.id }}"
+                                        data-user="{{ user.id }}"
+                                >
+                                    {{ user_mark }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    {% if is_granted('ROLE_TEACHER') and group.users|length > 0 and not group.isCompleted %}
+                        <tr>
+                            <th></th>
+                            {% for lesson in group.course.lessons %}
+                                {% set passed_lesson = checkLessonPassed(lesson, group) %}
+                                <td>
+                                    {% if passed_lesson %}
+                                        <button class="btn btn-danger btn-sm edit-lesson-group" data-lesson="{{ lesson.id }}" title="Редактировать">
+                                            <span class="glyphicon glyphicon-edit"></span>
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if is_granted('ROLE_TEACHER') %}
+        <div id="download-indicator-block"></div>
+
+        <div class="panel panel-primary" id="edit-lesson-current-group-block">
+            <div class="panel-heading">
+                <h4 id="edit-lesson-current-group-title-content">
+                    <span></span>
+                    <span style="float: right"></span>
+                </h4>
+            </div>
+            <div class="panel-body panel-table">
+                <table class="table table-bordered journal-table" id="edit-lesson-current-group-list-users" data-lesson=""></table>
+            </div>
+
+            <div class="panel-footer">
+                <button class="btn btn-success" id="update-lesson-group">Обновить</button>
+                {#<button class="btn btn-dunger" id="delete-lesson-group">Удалить</button>#}
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block script %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/dropzone.min.js') }}"></script>
+    <script>
+        var DATA_GROUP = {
+            group: {
+                date_begin: "{{ group.getCreatedAt()|date('U') }}",
+                date_current: "{{ 'now'|date('U') }}"
+            },
+            route_name: {
+                lesson_save: "{{ path('lesson-save') }}",
+                lesson_edit: "{{ path('lesson-edit') }}",
+                home_assignment_add: "{{ path('home-assignment-add') }}"
+            }
+        };
+
+        Dropzone.options.addHomeAssignmentDropzone = {
+            url: DATA_GROUP.route_name.home_assignment_add,
+            method: "POST",
+            timeout: 36000000,
+            paramName: "file", // The name that will be used to transfer the file
+            maxFilesize: 100, // MB
+            parallelUploads: 10,
+            maxFiles: 10,
+            maxThumbnailFilesize: 100,
+            uploadMultiple: true,
+            clickable: true,
+            autoProcessQueue: false,
+            addRemoveLinks: true,
+            dictDefaultMessage: 'Добавить файлы',
+            dictFallbackMessage: 'Ваш брайзер не поддерживает загрузку файлов!',
+            dictFallbackText: null,
+            dictFileTooBig: "Максимальный размер загружаемого файла: 100 MB.",
+            dictInvalidFileType: 'Загрузка данного типа файла невозможна!',
+            dictCancelUpload: 'Отменить загрузку.',
+            dictCancelUploadConfirmation: 'Вы действительно хотите отменить загрузку?',
+            dictRemoveFile: 'Удалить файл.',
+            dictMaxFilesExceeded: 'Вы не можете больше загружать файлы'
+        };
+
+    </script>
+{% endblock %}

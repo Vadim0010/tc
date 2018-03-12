@@ -1,0 +1,307 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use AppBundle\Classes\ForUsingToString;
+use AppBundle\Entity\Course;
+use AppBundle\Entity\HomeAssignmentFiles;
+use AppBundle\Entity\LessonsUsers;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="home_assignment")
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", timeAware=false)
+ */
+class HomeAssignment extends ForUsingToString
+{
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min="1",
+     *     max="255"
+     * )
+     */
+    private $title;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $body;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Course", inversedBy="homeAssignment")
+     */
+    private $course;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\LessonsUsers", mappedBy="homeAssignment", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $lessonsUsers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\HomeAssignmentFiles", mappedBy="homeAssignment", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $files;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
+     */
+    private $updatedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $deletedAt;
+
+    public function __construct()
+    {
+        $this->lessonsUsers = new ArrayCollection();
+        $this->files = new ArrayCollection();
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set title
+     *
+     * @param string $title
+     *
+     * @return HomeAssignment
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * Set body
+     *
+     * @param string $body
+     *
+     * @return HomeAssignment
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * Get body
+     *
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     *
+     * @return HomeAssignment
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Set updatedAt
+     *
+     * @param \DateTime $updatedAt
+     *
+     * @return HomeAssignment
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get updatedAt
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * Set deletedAt
+     *
+     * @param \DateTime $deletedAt
+     *
+     * @return HomeAssignment
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get deletedAt
+     *
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Add lessonsUser
+     *
+     * @param LessonsUsers $lessonsUser
+     *
+     * @return HomeAssignment
+     */
+    public function addLessonsUser(LessonsUsers $lessonsUser)
+    {
+        $this->lessonsUsers[] = $lessonsUser;
+        $lessonsUser->setHomeAssignment($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove lessonsUser
+     *
+     * @param LessonsUsers $lessonsUser
+     */
+    public function removeLessonsUser(LessonsUsers $lessonsUser)
+    {
+        $this->lessonsUsers->removeElement($lessonsUser);
+        $lessonsUser->setHomeAssignment();
+    }
+
+    /**
+     * Get lessonsUsers
+     *
+     * @return Collection
+     */
+    public function getLessonsUsers()
+    {
+        return $this->lessonsUsers;
+    }
+
+    /**
+     * Add file
+     *
+     * @param HomeAssignmentFiles $file
+     *
+     * @return HomeAssignment
+     */
+    public function addFile(HomeAssignmentFiles $file)
+    {
+        $this->files[] = $file;
+        $file->setHomeAssignment($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove file
+     *
+     * @param HomeAssignmentFiles $file
+     */
+    public function removeFile(HomeAssignmentFiles $file)
+    {
+        $this->files->removeElement($file);
+        $file->setHomeAssignment();
+    }
+
+    /**
+     * Get files
+     *
+     * @return Collection
+     */
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * Set course
+     *
+     * @param Course $course
+     *
+     * @return HomeAssignment
+     */
+    public function setCourse(Course $course = null)
+    {
+        $this->course = $course;
+
+        return $this;
+    }
+
+    /**
+     * Get course
+     *
+     * @return Course
+     */
+    public function getCourse()
+    {
+        return $this->course;
+    }
+}

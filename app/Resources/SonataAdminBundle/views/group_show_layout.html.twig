@@ -1,0 +1,161 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h4>
+                {{ group.title }}
+            </h4>
+        </div>
+        <div class="panel-body panel-table">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Номер группы:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.number %}
+                                {{ group.number }}
+                            {% else %}
+                                Номер не присвоен
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Курс:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.course %}
+                                {{ group.course.courseName }}
+                            {% else %}
+                                Курс не указан
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Дата начала:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.getCreatedAt() %}
+                                {{ group.getCreatedAt().format('d.m.Y') }}
+                            {% else %}
+                                Дата начала не указана
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Время проведения:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.getCreatedAt() %}
+                                {{ group.getCreatedAt().format('H:i') }}
+                                {% if group.course.durationLessons %}
+                                    (Продолжительность: {{ group.course.durationLessons }} ч)
+                                {% endif %}
+                            {% else %}
+                                Время проведения занятий не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Количество занятий / осталось:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if number_lesson %}
+                                {{ number_lesson }}
+                                {% if data %}
+                                    / {{ number_lesson - data.lessonsGroup|length }}
+                                {% endif %}
+                            {% else %}
+                                Количество занятий не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Дни занятий:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.daysLessons %}
+                                {% for day in group.daysLessons %}
+                                    {% if day == 1 %}
+                                        Понедельник
+                                    {% elseif day == 2 %}
+                                        Вторник
+                                    {% elseif day == 3 %}
+                                        Среда
+                                    {% elseif day == 4 %}
+                                        Четверг
+                                    {% elseif day == 5 %}
+                                        Пятница
+                                    {% elseif day == 6 %}
+                                        Суббота
+                                    {% elseif day == 7 %}
+                                        Воскресенье
+                                    {% endif %}
+                                    {% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Преподаватель:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.teacher %}
+                                <p>
+                                    {{ group.teacher.name }}
+                                </p>
+                            {% else %}
+                                Преподаватель не назначен
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 group-field-name">
+                            Куратор:
+                        </div>
+                        <div class="col-md-8 group-field-data">
+                            {% if group.curator %}
+                                <p>
+                                    {{ group.curator.listenerName }}
+                                </p>
+                            {% else %}
+                                Куратор не назначен
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {% block listener_content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block teacher_content %}{% endblock %}
+    {% block listenet_result_content %}{% endblock %}
+{% endblock %}
+
+{% block script %}
+    {{ parent() }}
+{% endblock %}

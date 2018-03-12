@@ -1,0 +1,93 @@
+{% set groups_active = object.groups.groups_active %}
+{% set groups_future = object.groups.groups_future %}
+{% set groups_history = object.groups.groups_history %}
+
+<div class="container-fluid">
+    <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="active">
+                <a href="#tab_listener_active" data-toggle="tab">
+                    <i class="fa fa-exclamation-circle has-errors hide" aria-hidden="true"></i>
+                    Текущие группы
+                </a>
+            </li>
+            <li>
+                <a href="#tab_listener_future" data-toggle="tab">
+                    <i class="fa fa-exclamation-circle has-errors hide" aria-hidden="true"></i>
+                    Будущие группы
+                </a>
+            </li>
+            <li>
+                <a href="#tab_listener_history" data-toggle="tab">
+                    <i class="fa fa-exclamation-circle has-errors hide" aria-hidden="true"></i>
+                    Завершенные группы
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="tab_listener_active">
+                <div class="box-body  container-fluid">
+                    <div class="sonata-ba-collapsed-fields">
+                        {% include
+                        'SonataAdminBundle:content:group_list.html.twig'
+                        with
+                            {
+                                'status': 'success',
+                                'heading': 'Список текущих групп',
+                                'groups': groups_active,
+                                'teacher_show': true,
+                                'curator_show': true,
+                                'time_show': true,
+                                'number_lessons': true,
+                                'child_show': false,
+                                'edit': false
+                            }
+                        %}
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab_listener_future">
+                <div class="box-body  container-fluid">
+                    <div class="sonata-ba-collapsed-fields">
+                        {% include
+                        'SonataAdminBundle:content:group_list.html.twig'
+                        with
+                            {
+                                'status': 'info',
+                                'heading': 'Список будущих групп',
+                                'groups': groups_future,
+                                'teacher_show': true,
+                                'curator_show': true,
+                                'time_show': true,
+                                'number_lessons': true,
+                                'child_show': false,
+                                'edit': false
+                            }
+                        %}
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab_listener_history">
+                <div class="box-body  container-fluid">
+                    <div class="sonata-ba-collapsed-fields">
+                        {% include
+                        'SonataAdminBundle:content:group_list.html.twig'
+                        with
+                            {
+                                'status': 'danger',
+                                'heading': 'Список завершенных групп',
+                                'groups': groups_history,
+                                'teacher_show': true,
+                                'curator_show': true,
+                                'time_show': true,
+                                'number_lessons': false,
+                                'child_show': false,
+                                'edit': false
+                            }
+                        %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

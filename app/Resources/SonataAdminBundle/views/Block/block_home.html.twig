@@ -1,0 +1,17 @@
+{% extends sonata_block.templates.block_base %}
+
+{% block block %}
+    <div class="sonata-feeds-container">
+        <div class="sonata-ba-show">
+            <div class="sonata-ba-view">
+                {% if is_granted('ROLE_USER') %}
+                    <div class="main-content">
+                        <h2 class="text-center">Здесь становятся IT - специалистами!</h2>
+                        <p>В Центре Обучающих Технологий Вы получите реальные компьютерные навыки и будете успешно конкурировать на рынке труда. Выберите лучший из
+                            <a href="https://trainingcenter.by/courses/courses2.php" target="_blank">60 компьютерных курсов</a>  прямо сейчас!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

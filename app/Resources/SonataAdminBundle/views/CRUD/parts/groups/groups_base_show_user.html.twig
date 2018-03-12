@@ -1,0 +1,47 @@
+<table class="table">
+    <tbody>
+    {% block show_field %}
+        <tr class="sonata-ba-view-container">
+            <th class="diff">Фамилия</th>
+            <td>
+                {{ user.lastName }}
+            </td>
+        </tr>
+        <tr class="sonata-ba-view-container">
+            <th class="diff">Имя</th>
+            <td>
+                {{ user.firstName }}
+            </td>
+        </tr>
+        <tr class="sonata-ba-view-container">
+            <th class="diff">Отчество</th>
+            <td>
+                {{ user.middleName }}
+            </td>
+        </tr>
+        <tr class="sonata-ba-view-container">
+            <th class="diff">E-mail</th>
+            <td>
+                <a href="{{ link.associationadmin.generateObjectUrl('show', user, link.options.route.parameters) }}">
+                    {{ user.email }}
+                </a>
+            </td>
+        </tr>
+        <tr class="sonata-ba-view-container">
+            <th class="diff">Телефон</th>
+            <td>
+                {{ user.phone }}
+            </td>
+        </tr>
+        <tr class="sonata-ba-view-container">
+            <th class="diff">Дата регистрации</th>
+            <td>
+                {% set data = user.createdAt.format('d.m.Y') %}
+                {% if(data is defined) %}
+                    {{ data|nl2br }}
+                {% endif %}
+            </td>
+        </tr>
+    {% endblock %}
+    </tbody>
+</table>

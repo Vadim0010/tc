@@ -1,0 +1,28 @@
+breadcrumb.link_users_list: Список пользователей
+breadcrumb.link_users_create: Добавить нового пользователя
+breadcrumb.link_users_delete: Удаление пользователя
+breadcrumb.link_course_list: Список курсов
+breadcrumb.link_course_create: Добавить новый курс
+breadcrumb.link_course_delete: Удаление курса
+breadcrumb.link_groups_list: Список групп
+breadcrumb.link_groups_create: Добавить новую группу
+breadcrumb.link_groups_delete: Удаление группы
+list.label_i_d: ID
+list.label_e-mail: E-mail
+list.label_Фамилия: Фамилия
+list.label_Имя: Имя
+list.label_Отчество: Отчество
+list.label_Телефон: Телефон
+list.label_Группа: Группа
+list.label_Действия: Действия
+list.label_Роль: Роль
+list.label_Название курса: Название курса
+list.label_Количество занятий: Количество занятий
+list.label_Продолжительность занятий: Продолжительность занятий
+list.label_Курс: Курс
+list.label_Номер группы: Номер группы
+list.label_Название группы: Название группы
+list.label_Дата начала: Дата начала
+list.label_Дни занятий: Дни занятий
+list.label_Преподаватель: Преподаватель
+list.label_Куратор: Куратор

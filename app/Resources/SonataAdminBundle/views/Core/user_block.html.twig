@@ -1,0 +1,19 @@
+{% block user_block %}
+    {% if app.user %}
+        <li>
+            <a href="{{ url('fos_user_profile_show') }}">Профиль</a>
+        </li>
+        {% if is_granted(['ROLE_ADMIN', 'ROLE_CURATOR', 'ROLE_TEACHER']) %}
+            <li>
+                <a href="{{ url('fos_user_profile_edit') }}">Редактировать профиль</a>
+            </li>
+        {% else %}
+            <li>
+                <a href="{{ url('fos_user_change_password') }}">Сменить пароль</a>
+            </li>
+        {% endif %}
+        <li>
+            <a href="{{ url('fos_user_security_logout') }}"><i class="fa fa-sign-out fa-fw"></i>Выход</a>
+        </li>
+    {% endif %}
+{% endblock %}

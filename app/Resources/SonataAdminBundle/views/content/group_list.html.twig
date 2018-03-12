@@ -1,0 +1,212 @@
+<div class="group-title alert alert-{{ status }}">
+    {{ heading }}
+</div>
+<div class="panel-table">
+    <table class="table table-bordered journal-table">
+        <tr>
+            <th class="text-center">
+                Номер группы
+            </th>
+            <th class="text-center">
+                Название группы
+            </th>
+            <th class="text-center">
+                Название курса
+            </th>
+            {% if teacher_show %}
+                <th class="text-center">
+                    Преподаватель
+                </th>
+            {% endif %}
+            {% if curator_show %}
+                <th class="text-center">
+                    Куратор
+                </th>
+            {% endif %}
+            <th class="text-center">
+                Дата начала
+            </th>
+            <th class="text-center">
+                Дни занятий
+            </th>
+            {% if time_show %}
+                <th class="text-center">
+                    Время проведения
+                </th>
+            {% endif %}
+            {% if number_lessons %}
+                <th class="text-center">
+                    Количество занятий / осталось
+                </th>
+            {% endif %}
+            {% if edit %}
+                <th class="text-center"></th>
+            {% endif %}
+        </tr>
+        {% for group in groups %}
+            {% if number_lessons %}
+                {% set data_group = getGroupData(group) %}
+            {% endif %}
+            <tr>
+                <td class="group-field-name" style="min-width: 180px">
+                    {% if not group.isCompleted %}
+                        {% if child_show %}
+                            <a href="{{ path('child-group-show', {'child': child.id, 'group': group.id}) }}">
+                                {% if group.number %}
+                                    {{ group.number }}
+                                {% else %}
+                                    Номер отутствует
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a href="{{ path('group-show', {'group': group.id}) }}">
+                                {% if group.number %}
+                                    {{ group.number }}
+                                {% else %}
+                                    Номер отутствует
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        {% if not child_show %}
+                            <a href="{{ path('archive_group-show', {'group': group.id}) }}">
+                                {% if group.number %}
+                                    {{ group.number }}
+                                {% else %}
+                                    Номер отутствует
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                    {% if data_group is defined and data_group.lessonsGroup|length == 0 %}
+                        <span class="label label-primary" style="text-align: right">Новая</span>
+                    {% endif %}
+                    {% if data_group is defined %}
+                        {% if data_group.lessonsGroup and ( data_group.lessonsGroup|length - group.course.numberLessons == 0 ) %}
+                            <span class="label label-success label-group-complete">Завершенная</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not group.isCompleted %}
+                        {% if child_show %}
+                            <a href="{{ path('child-group-show', {'child': child.id, 'group': group.id}) }}">
+                                {% if group.title %}
+                                    {{ group.title }}
+                                {% else %}
+                                    Название группы отсутствует
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a href="{{ path('group-show', {'group': group.id}) }}">
+                                {% if group.title %}
+                                    {{ group.title }}
+                                {% else %}
+                                    Название группы отсутствует
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        {% if not child_show %}
+                            <a href="{{ path('archive_group-show', {'group': group.id}) }}">
+                                {% if group.title %}
+                                    {{ group.title }}
+                                {% else %}
+                                    Название группы отсутствует
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if group.course %}
+                        {{ group.course.courseName }}
+                    {% else %}
+                        Название курса отсутствует
+                    {% endif %}
+                </td>
+                {% if teacher_show %}
+                    <td>
+                        {% if group.teacher %}
+                            {{ group.teacher.name }}
+                        {% else %}
+                            Преподаватель не назначен
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% if curator_show %}
+                    <td>
+                        {% if group.curator %}
+                            {{ group.curator.name }}
+                        {% else %}
+                            Куратор не назначен
+                        {% endif %}
+                    </td>
+                {% endif %}
+                <td>
+                    {% if group.createdAt %}
+                        {{ group.createdAt|date('d.m.Y') }}
+                    {% else %}
+                        Дата начала занятий не указана
+                    {% endif %}
+                </td>
+                <td>
+                    {% if group.daysLessons %}
+                        {% for day in group.daysLessons %}
+                            {% if day == 1 %}
+                                Понедельник
+                            {% elseif day == 2 %}
+                                Вторник
+                            {% elseif day == 3 %}
+                                Среда
+                            {% elseif day == 4 %}
+                                Четверг
+                            {% elseif day == 5 %}
+                                Пятница
+                            {% elseif day == 6 %}
+                                Суббота
+                            {% elseif day == 7 %}
+                                Воскресенье
+                            {% endif %}
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Дни занятий не указаны
+                    {% endif %}
+                </td>
+                {% if time_show %}
+                    <td>
+                        {% if group.getCreatedAt() %}
+                            {{ group.getCreatedAt().format('H:i') }}
+                        {% else %}
+                            Время проведения занятий не указано
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% if number_lessons %}
+                    <td>
+                        {% if group.course.numberLessons %}
+                            {{ group.course.numberLessons }}
+                            {% if data_group is defined %}
+                                / {{ group.course.numberLessons - data_group.lessonsGroup|length }}
+                            {% endif %}
+                        {% else %}
+                            Количество занятий не указано
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% if edit %}
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="{{ path('admin_app_groups_edit', {'id': group.id}) }}">
+                            <span class="glyphicon glyphicon-edit"></span>
+                        </a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% if groups.getTotalItemCount > groups.getItemNumberPerPage %}
+        {{ knp_pagination_render(groups) }}
+{% endif %}

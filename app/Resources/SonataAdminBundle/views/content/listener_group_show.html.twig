@@ -1,0 +1,60 @@
+{% extends 'SonataAdminBundle::group_show_layout.html.twig' %}
+
+{% set data = getGroupData(group) %}
+{% set number_lesson = group.course.numberLessons %}
+
+{% block listener_content %}
+    <div class="panel-table">
+        <table class="table table-bordered journal-table" id="current-listener-lessons-list" aria-describedby="lessonsHelpBlock">
+            <tr>
+                <th></th>
+                {% for lesson in group.course.lessons %}
+                    {% set lesson_date = getLessonDate(group, lesson) %}
+                    <th>
+                        {% if lesson_date %}
+                            {{ lesson_date.format('d.m') }}
+                        {% else %}
+                            {{ loop.index }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th>{{ listener.name }}</th>
+                {% for lesson in group.course.lessons %}
+                    {% set data_listener = getUserData(listener, group, lesson) %}
+                    {% set listener_mark = data_listener ? data_listener.mark : "" %}
+                    {% set listener_attend = data_listener ? data_listener.isAttend : 2 %}
+                    <td class="{% if listener_attend == 1 %}success{% elseif listener_attend == 2 %}{% else %}danger{% endif %}"
+                        id="current-listener-lesson"
+                        data-lesson="{{ lesson.id }}"
+                    >
+                        {{ listener_mark }}
+                    </td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+    <p id="lessonsHelpBlock" class="form-text text-muted">
+        * Чтобы получить подробную информацию о занятии, нажмите на ячейку этого занятия
+    </p>
+{% endblock %}
+
+{% block listenet_result_content %}
+    <div id="home-assignment-result"></div>
+{% endblock %}
+
+
+{% block script %}
+    {{ parent() }}
+    <script>
+        var DATA_GROUP_LISTENER = {
+            data: {
+                group: {{ group.id }}
+            },
+            route_name: {
+                ha_show: "{{ path('home-assignment-show') }}"
+            }
+        }
+    </script>
+{% endblock %}

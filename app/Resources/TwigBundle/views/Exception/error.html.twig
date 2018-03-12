@@ -1,0 +1,28 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}
+    {% if status_code == 404 %}
+        Страница не найдена
+    {% elseif status_code == 403 %}
+        Доступ запрещен
+    {% else %}
+        Ошибка
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('css/errors.css') }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+    <div class="content">
+        {% if status_code == 404 %}
+            <img src="{{ asset('images/errors/404.png') }}" title="error-404" />
+        {% elseif status_code == 403 %}
+            <img src="{{ asset('images/errors/403.png') }}" title="error-403" />
+        {% else %}
+            <img src="{{ asset('images/errors/500.png') }}" title="error-500" />
+        {% endif %}
+        <a href="{{ path('home') }}">Вернуться на главную</a>
+    </div>
+{% endblock %}

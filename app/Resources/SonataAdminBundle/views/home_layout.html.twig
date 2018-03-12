@@ -1,0 +1,327 @@
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+    {% if is_granted(['ROLE_ADMIN', 'ROLE_TEACHER', 'ROLE_CURATOR']) %}
+
+        <div class="well">
+            {{ form_start(searchGroupForm, {'attr': {'class': 'row'}}) }}
+                <div class="form-group col-lg-4 col-md-4 col-sm-12 {% if not searchGroupForm.course.vars.valid %}has-error{% endif %}">
+                    <label for="{{ searchGroupForm.course.vars.id }}">Название курса</label>
+                    <select name="{{ searchGroupForm.course.vars.full_name }}" id="{{ searchGroupForm.course.vars.id }}">
+                        <option value=""></option>
+                        {% for course in searchGroupForm.course.vars.choices %}
+                            <option
+                                    value="{{ course.value }}"
+                                    {{ course.value == searchGroupForm.course.vars.value ? 'selected' : '' }}
+                            >
+                                {{ course.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {{ form_errors(searchGroupForm.course) }}
+                </div>
+                <div class="form-group col-lg-4 col-md-4 col-sm-12 {% if not searchGroupForm.name.vars.valid %}has-error{% endif %}">
+                    <label for="{{ searchGroupForm.name.vars.id }}">Номер/Название группы</label>
+                    <input
+                            type="text"
+                            name="{{ searchGroupForm.name.vars.full_name }}"
+                            id="{{ searchGroupForm.name.vars.id }}"
+                            class="form-control"
+                            {% if searchGroupForm.name.vars.value %}value="{{ searchGroupForm.name.vars.value }}"{% endif %}
+                    >
+                    {{ form_errors(searchGroupForm.name) }}
+                </div>
+                <div class="form-group col-lg-4 col-md-4 col-sm-12 {% if not searchGroupForm.teacher.vars.valid %}has-error{% endif %}">
+                    <label for="{{ searchGroupForm.teacher.vars.id }}">Преподаватель</label>
+                    <select name="{{ searchGroupForm.teacher.vars.full_name }}" id="{{ searchGroupForm.teacher.vars.id }}">
+                        <option value=""></option>
+                        {% for teacher in searchGroupForm.teacher.vars.choices %}
+                            <option
+                                    value="{{ teacher.value }}"
+                                    {{ teacher.value == searchGroupForm.teacher.vars.value ? 'selected' : '' }}
+                            >
+                                {{ teacher.label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {{ form_errors(searchGroupForm.teacher) }}
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <button class="btn btn-primary pull-right">Найти</button>
+                </div>
+                {% do searchGroupForm.course.setRendered %}
+                {% do searchGroupForm.name.setRendered %}
+                {% do searchGroupForm.teacher.setRendered %}
+            {{ form_end(searchGroupForm) }}
+        </div>
+
+        {% if searchGroups and searchGroups.getTotalItemCount > 0 %}
+            <div class="nav-tabs-custom">
+                <div class="box-body  container-fluid">
+                    <div class="sonata-ba-collapsed-fields">
+                        <h4>Найдено групп: {{ searchGroups.getTotalItemCount }}</h4>
+                        <table class="table table-bordered journal-table">
+                            <tr>
+                                <th class="text-center">
+                                    Номер группы
+                                </th>
+                                <th class="text-center">
+                                    Название группы
+                                </th>
+                                <th class="text-center">
+                                    Название курса
+                                </th>
+                                <th class="text-center">
+                                    Преподаватель
+                                </th>
+                                <th class="text-center">
+                                    Дни занятий
+                                </th>
+                                <th class="text-center">
+                                    Время проведения
+                                </th>
+                            </tr>
+                            {% for searchGroup in searchGroups %}
+                                <tr>
+                                    <td class="group-field-name" style="min-width: 180px">
+                                        <a href="{{ path('group-show', {'group': searchGroup.id}) }}">
+                                            {{ searchGroup.number }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('group-show', {'group': searchGroup.id}) }}">
+                                            {{ searchGroup.title }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if searchGroup.course %}
+                                            {{ searchGroup.course.courseName }}
+                                        {% else %}
+                                            Название курса отсутствует
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if searchGroup.teacher %}
+                                            {{ searchGroup.teacher.name }}
+                                        {% else %}
+                                            Преподаватель не назначен
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if searchGroup.daysLessons %}
+                                            {% for day in searchGroup.daysLessons %}
+                                                {% if day == 1 %}
+                                                    Понедельник
+                                                {% elseif day == 2 %}
+                                                    Вторник
+                                                {% elseif day == 3 %}
+                                                    Среда
+                                                {% elseif day == 4 %}
+                                                    Четверг
+                                                {% elseif day == 5 %}
+                                                    Пятница
+                                                {% elseif day == 6 %}
+                                                    Суббота
+                                                {% elseif day == 7 %}
+                                                    Воскресенье
+                                                {% endif %}
+                                                {% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            Дни занятий не указаны
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if searchGroup.getCreatedAt() %}
+                                            {{ searchGroup.getCreatedAt().format('H:i') }}
+                                        {% else %}
+                                            Время проведения занятий не указано
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        {% if searchGroups.getTotalItemCount > searchGroups.getItemNumberPerPage %}
+                            {{ knp_pagination_render(searchGroups) }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% elseif searchGroups and searchGroups.getTotalItemCount == 0 %}
+            <div class="alert alert-danger fade in" role="alert">
+                Найдено групп: 0
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+    {% endif %}
+    {% if app.user.getRoles|length > 2 %}
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs" role="tablist">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="{% if not app.request.query.has('role') or app.request.query.get('role') == 'admin' %}active{% endif %}">
+                        <a href="{{ path('home', {'role': 'admin'}) }}">
+                            Администратор
+                        </a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_CURATOR') %}
+                    <li class="{% if (not app.request.query.has('role') and not is_granted('ROLE_ADMIN')) or app.request.query.get('role') == 'curator' %}active{% endif %}">
+                        <a href="{{ path('home', {'role': 'curator'}) }}">
+                            Куратор
+                        </a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_TEACHER') %}
+                    <li class="{% if (not app.request.query.has('role') and not is_granted('ROLE_ADMIN') and not is_granted('ROLE_CURATOR')) or app.request.query.get('role') == 'teacher' %}active{% endif %}">
+                        <a href="{{ path('home', {'role': 'teacher'}) }}">
+                            Преподаватель
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+    <div class="sonata-feeds-container">
+        <div class="sonata-ba-show">
+            <div class="sonata-ba-view">
+                {% if is_granted(['ROLE_LISTENER', 'ROLE_PARENT', 'ROLE_TEACHER', 'ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs" role="tablist">
+                            {% if is_granted(['ROLE_LISTENER', 'ROLE_TEACHER', 'ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                <li class="{% if not app.request.query.has('select') or app.request.query.get('select') == 'active_groups' %}active{% endif %}">
+                                    <a href="{{ path('home', app.request.query.all|merge({'select': 'active_groups', 'page': 1})) }}">
+                                        Текущие группы
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted(['ROLE_LISTENER', 'ROLE_TEACHER', 'ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                <li class="{% if app.request.query.get('select') == 'future_groups' %}active{% endif %}">
+                                    <a href="{{ path('home', app.request.query.all|merge({'select': 'future_groups', 'page': 1})) }}">
+                                        Будущие группы
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted(['ROLE_LISTENER', 'ROLE_TEACHER', 'ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                <li class="{% if app.request.query.get('select') == 'completed_groups' %}active{% endif %}">
+                                    <a href="{{ path('home', app.request.query.all|merge({'select': 'completed_groups', 'page': 1})) }}">
+                                        Завершенные группы
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted(['ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                <li class="{% if app.request.query.get('select') == 'list_teachers' %}active{% endif %}">
+                                    <a href="{{ path('home', app.request.query.all|merge({'select': 'list_teachers', 'page': 1})) }}">
+                                        Список преподавателей
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted(['ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                <li class="{% if app.request.query.get('select') == 'list_curators' %}active{% endif %}">
+                                    <a href="{{ path('home', app.request.query.all|merge({'select': 'list_curators', 'page': 1})) }}">
+                                        Список кураторов
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if is_granted('ROLE_PARENT') %}
+                                {% if children %}
+                                    {% for child in children %}
+                                        <li class="{% if (app.request.query.has('select') and app.request.query.get('select') == 'child_' ~ child.id) or (not app.request.query.has('select') and loop.index == 1 and not groups) %}active{% endif %}">
+                                            <a href="{{ path('home', app.request.query.all|merge({'select': 'child_' ~ child.id, 'page': 1})) }}">
+                                                {{ child.name }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endif %}
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="tab_groups_active">
+                                <div class="box-body  container-fluid">
+                                    <div class="sonata-ba-collapsed-fields">
+                                        {% if groups and is_granted(['ROLE_LISTENER', 'ROLE_TEACHER', 'ROLE_CURATOR', 'ROLE_ADMIN']) %}
+                                            {% if groups.getTotalItemCount > 0 %}
+                                                {% if app.request.query.get('select') == 'active_groups' or not app.request.query.has('select') %}
+                                                    {% set status = 'success' %}
+                                                    {% set heading = 'Список текущих групп' %}
+                                                {% elseif app.request.query.get('select') == 'future_groups' %}
+                                                    {% set status = 'info' %}
+                                                    {% set heading = 'Список будущих групп' %}
+                                                {% elseif app.request.query.get('select') == 'completed_groups' %}
+                                                    {% set status = 'info' %}
+                                                    {% set heading = 'Список завершенных групп' %}
+                                                {% endif %}
+                                                {% set teacher_show = is_granted('ROLE_LISTENER') ? true : false %}
+                                                {% set curator_show = is_granted('ROLE_LISTENER') ? true : false %}
+                                                {% set time_show = true %}
+                                                {% set number_lessons = false %}
+                                                {% set edit = is_granted('ROLE_ADMIN') ? true : false %}
+                                                {% include 'SonataAdminBundle:content:group_list.html.twig' with
+                                                    {
+                                                        'status': status ? status : 'success',
+                                                        'heading': heading ? heading : 'Список групп',
+                                                        'groups': groups,
+                                                        'teacher_show': teacher_show,
+                                                        'curator_show': curator_show,
+                                                        'time_show': time_show,
+                                                        'number_lessons': number_lessons,
+                                                        'child_show': false,
+                                                        'edit': edit
+                                                    }
+                                                %}
+                                            {% else %}
+                                                <div class="alert alert-danger" role="alert">Список групп пуст</div>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if users and is_granted(['ROLE_ADMIN', 'ROLE_CURATOR']) %}
+                                            {% if app.request.query.get('select') == 'list_teachers' %}
+                                                {% set title = 'Список преподавателей' %}
+                                            {% elseif app.request.query.get('select') == 'list_curators' %}
+                                                {% set title = 'Список кураторов' %}
+                                            {% else %}
+                                                {% set title = 'Список пользователей' %}
+                                            {% endif %}
+                                            {% include 'SonataAdminBundle:content:list_users.html.twig' with
+                                                {
+                                                    'users': users,
+                                                    'title': title
+                                                }
+                                            %}
+                                        {% endif %}
+                                        {% if children and is_granted('ROLE_PARENT') and not groups %}
+                                            {% if child %}
+                                                {% set child_groups = getGroupsForChild(child) %}
+                                            {% else %}
+                                                {% set child_groups = getGroupsForChild(children|first) %}
+                                            {% endif %}
+                                            {% if child_groups %}
+                                                {% if child_groups.getTotalItemCount > 0 %}
+                                                    {% include 'SonataAdminBundle:content:group_list.html.twig' with
+                                                        {
+                                                            'status': 'success',
+                                                            'heading': 'Список групп',
+                                                            'groups': child_groups,
+                                                            'teacher_show': true,
+                                                            'curator_show': true,
+                                                            'time_show': true,
+                                                            'number_lessons': false,
+                                                            'child_show': true,
+                                                            'edit': false
+                                                        }
+                                                    %}
+                                                {% else %}
+                                                    <div class="alert alert-danger" role="alert">Список групп пуст</div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
